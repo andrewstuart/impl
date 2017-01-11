@@ -7,6 +7,8 @@ import (
 	"go/token"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
 	impl "github.com/josharian/impl/pkg"
 )
@@ -30,6 +32,34 @@ var (
 	update = flag.Bool("u", false, "update the file given")
 )
 
+func getPosition(pos string) (*token.Position, error) {
+	arr := strings.Split(pos, ":")
+
+	if len(arr) < 2 {
+		return nil, fmt.Errorf("Invalid position spec")
+	}
+
+	p := token.Position{Column: 1}
+
+	p.Filename = arr[0]
+
+	line, err := strconv.Atoi(arr[1])
+	if err != nil {
+		return nil, fmt.Errorf("invalid line spec in position: %s", err)
+	}
+	p.Line = line
+
+	if len(arr) == 3 {
+		col, err := strconv.Atoi(arr[2])
+		if err != nil {
+			return nil, fmt.Errorf("invalid column spec in position: %s", err)
+		}
+		p.Column = col
+	}
+
+	return &p, nil
+}
+
 func main() {
 	flag.Parse()
 
@@ -41,8 +71,11 @@ func main() {
 	var p *token.Position
 
 	if *pos != "" {
-		// p = &token.Position{}
-		fmt.Sscanf(*pos, "%s:%d:%d", &p.Filename, &p.Line, &p.Column)
+		var err error
+		p, err = getPosition(*pos)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	bs, err := imp.GenForPosition(p)
@@ -59,7 +92,11 @@ func main() {
 	}
 
 	if *update {
-		*out = imp.fset.Position(imp.typeDecl.End()).Filename
+		p, err := imp.Position()
+		if err != nil {
+			log.Fatal(err)
+		}
+		*out = p.Filename
 	}
 
 	mode := os.O_RDWR | os.O_CREATE

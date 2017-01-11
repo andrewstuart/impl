@@ -27,6 +27,11 @@ $ impl 's *Source' golang.org/x/oauth2.TokenSource
 func (s *Source) Token() (*oauth2.Token, error) {
     panic("not implemented")
 }
+
+# You can request that the declaring file be updated in-place by passing -u
+$ impl -u 'f *File' io.ReadWriteCloser
+
+# You can also 
 ```
 
 You can use `impl` from Vim with [vim-go-impl](https://github.com/rhysd/vim-go-impl)
