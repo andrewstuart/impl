@@ -31,7 +31,13 @@ func (s *Source) Token() (*oauth2.Token, error) {
 # You can request that the declaring file be updated in-place by passing -u
 $ impl -u 'f *File' io.ReadWriteCloser
 
-# You can also 
+# You can also specify a position at which you'd like the generated code to be
+# inserted, helpful for editor/ide integration.
+$ impl -p main.go:12 'f *File' io.ReadWriteCloser
+
+# Finally, you can override the default stdout printing and send your output to 
+# a specific file with the -o option.
+$ impl -p main.go:12 -o test/main2.go 'f *File' io.ReadWriteCloser
 ```
 
 You can use `impl` from Vim with [vim-go-impl](https://github.com/rhysd/vim-go-impl)

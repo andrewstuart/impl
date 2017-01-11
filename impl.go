@@ -27,9 +27,9 @@ to prevent shell globbing.
 `
 
 var (
-	pos    = flag.String("position", "", "the file:line:col to write the source code to. Default is immediately after the type definition")
+	update = flag.Bool("u", false, "update the file (see -p for file defaulting behavior)")
 	out    = flag.String("o", "", "the file to write out to. default is stdout")
-	update = flag.Bool("u", false, "update the file given")
+	pos    = flag.String("p", "", "the file:line[:col] to write the source code to. Default is immediately after the type definition")
 )
 
 func getPosition(pos string) (*token.Position, error) {
@@ -76,6 +76,18 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	// If no options are specified, behave as we would have before, printing out
+	// only the generated methods (minus implemented methods)
+	if *out == "" && !*update && *pos == "" {
+		bs, err := imp.GenStubs()
+		if err != nil {
+			log.Fatal(err)
+		}
+		os.Stdout.Write(bs)
+		os.Exit(0)
+		return
 	}
 
 	bs, err := imp.GenForPosition(p)
