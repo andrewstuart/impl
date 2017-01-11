@@ -56,6 +56,7 @@ type Implementer struct {
 	buf  *bytes.Buffer
 }
 
+// Visit implements ast.Visit
 func (i *Implementer) Visit(node ast.Node) (w ast.Visitor) {
 	if node == nil {
 		return nil
@@ -90,6 +91,8 @@ func (i *Implementer) Visit(node ast.Node) (w ast.Visitor) {
 	return nil
 }
 
+// Position returns, if found, the token.Position of the end of the type
+// declaration for the specified receiver.
 func (i *Implementer) Position() (*token.Position, error) {
 	err := i.init()
 	if err != nil {
@@ -101,10 +104,9 @@ func (i *Implementer) Position() (*token.Position, error) {
 	return &p, nil
 }
 
-// genStubs prints nicely formatted method stubs
-// for fns using receiver expression recv.
-// If recv is not a valid receiver expression,
-// genStubs will panic.
+// GenStubs prints nicely formatted method stubs for fns using receiver
+// expression recv. If the Implementer is not in a valid state, or an error
+// occurs, the error will be returned.
 func (i *Implementer) GenStubs() ([]byte, error) {
 	err := i.init()
 	if err != nil {
@@ -121,6 +123,10 @@ func (i *Implementer) GenStubs() ([]byte, error) {
 	return format.Source(i.buf.Bytes())
 }
 
+// GenForPosition allows users to have more flexible stub generation, with the
+// ability to specify exactly where the implementation should be generated. If
+// the token.Position argument is nil, the generated code will be inserted
+// immediately after the receiving type's declaration.
 func (i *Implementer) GenForPosition(p *token.Position) ([]byte, error) {
 	src, err := i.GenStubs()
 	if err != nil {
