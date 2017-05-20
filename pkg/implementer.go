@@ -10,6 +10,11 @@ import (
 	"io/ioutil"
 )
 
+// Implement implements an interface for a given receiver
+func (i *Implementer) Implement(Recv, IFace string) Buffers {
+	return nil
+}
+
 // An Implementer can, for a certain directory, create and/or update
 // implementation with Go source code for a particular interface
 type Implementer struct {
@@ -171,6 +176,9 @@ func (i *Implementer) init() error {
 
 	i.fset = token.NewFileSet()
 	i.file, err = parser.ParseDir(i.fset, i.Dir, nil, 0)
+	if err != nil {
+		return err
+	}
 
 	i.funcs, err = funcs(i.IFace)
 	if err != nil {

@@ -39,8 +39,11 @@ func findInterface(iface string) (path string, id string, err error) {
 		return "", "", fmt.Errorf("couldn't parse interface: %s", iface)
 	}
 
-	if strings.Index(iface, ".") == -1 {
-		fs := token.NewFileSet()
+	fs := token.NewFileSet()
+
+	// If the interface spec contains no dot, parse the local directory and search
+	// for the specified interface
+	if strings.Count(iface, ".") == 0 {
 
 		pkgs, err := parser.ParseDir(fs, ".", nil, 0)
 		if err != nil {
@@ -84,8 +87,7 @@ func findInterface(iface string) (path string, id string, err error) {
 
 	// imp should now contain an appropriate import.
 	// Parse out the import and the identifier.
-	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "", imp, 0)
+	f, err := parser.ParseFile(fs, "", imp, 0)
 	if err != nil {
 		panic(err)
 	}
